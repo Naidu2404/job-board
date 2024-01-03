@@ -13,4 +13,9 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-Route::resource('jobs',JobController::class)->only(['index']);
+
+Route::get('/', fn() => redirect()->route('jobs.index'));
+//we can also redirect like this
+// Route::get('', fn() => to_route('jobs.index'));
+
+Route::resource('jobs',JobController::class)->only(['index','show']);
