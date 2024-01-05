@@ -13,13 +13,17 @@ class JobController extends Controller
     public function index()
     {
         //writing query for filtering
-        $jobs = Job::query();
+        $jobs = Job::query()->with('employer');
 
         //filtering with name
         $jobs->when(request('search'), function ($query) {
             $query->where(function ($query) {
                 $query->where('title', 'like', '%' . request('search') . '%')
-                    ->orWhere('description', 'like', '%' . request('search') . '%');
+                    ->orWhere('description', 'like', '%' . request('search') . '%')
+                    //quering for the employer who matches the search term
+                    ->orWhereHas('employer', function ($query) {
+                        $query->where('company_name','LIKE', '%' . request('search') . '%');
+                    });
             });
         })->when(request('min_salary'), function ($query) {
             $query->where('salary', '>=', request('min_salary'));
@@ -59,7 +63,7 @@ class JobController extends Controller
     {
         //
 
-        return view('job.show', compact('job'));
+        return view('job.show', ['job' => $job->load('employer.jobs')]);
     }
 
     /**
