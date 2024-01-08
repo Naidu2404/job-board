@@ -9,7 +9,7 @@
         </svg>
     </button>
     @endif
-    <input x-ref="input-{{ $name }}" type="text" placeholder="{{ $placeholder }}"
+    <input x-ref="input-{{ $name }}" type="{{ $type }}" placeholder="{{ $placeholder }}"
     name="{{ $name }}"
     value="{{ $value }}"
     id="{{ $name }}"
