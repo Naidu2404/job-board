@@ -44,6 +44,15 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        
+        //filling the job applications table by generating random number of applications to each user
+        foreach($users as $user) {
+            $jobs = \App\Models\Job::inRandomOrder()->take(rand(0,4))->get();
+            foreach($jobs as $job) {
+                \App\Models\JobApplication::factory()->create([
+                    'user_id'=> $user->id,
+                    'job_id' => $job->id,
+                ]);
+            }
+        }
     }
 }

@@ -22,12 +22,12 @@
             <div>
                 <div class="mb-1 font-semibold">Experience</div>
 
-                <x-radio-group name='experience' :values="\App\Models\Job::$experience" />
+                <x-radio-group name='experience' :options="\App\Models\Job::$experience" />
             </div>
             <div>
                 <div class="mb-1 font-semibold">Category</div>
 
-                <x-radio-group name='category' :values="\App\Models\Job::$category"/>
+                <x-radio-group name='category' :options="\App\Models\Job::$category"/>
             </div>
         </div>
         <x-button class="w-full">Filter</x-button>

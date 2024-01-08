@@ -30,8 +30,19 @@ class AuthController extends Controller
             return redirect()->back()->with("error","Invalid Credentials");
         }
     }
-    public function destroy(string $id)
+    public function destroy()
     {
-        //
+        //loggin out the user by using the logout method in the Auth Fascade
+        Auth::logout();
+
+        //we need to destroy or invalidate the data of the user who is logging out
+        //so we use the session and invalidate the total session
+        request()->session()->invalidate();
+
+        //we need to regenerate the crsf token after the user logs out as all the forms loaded must be made unavailable to submit after the user logs out
+        request()->session()->regenerateToken();
+
+        //we return back to the homepage after logging out
+        return redirect('/');
     }
 }
