@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\JobRequest;
 use App\Models\Job;
 use Illuminate\Http\Request;
 
@@ -12,7 +13,18 @@ class MyJobController extends Controller
      */
     public function index()
     {
-        return view('my_job.index');
+        $this->authorize('viewAnyEmployer', Job::class);
+        return view(
+            'my_job.index',
+            [
+                'jobs' => auth()->user()->employer
+                ->jobs()
+                ->with(['employer','jobApplications','jobApplications.user'])
+                // we use withTrashed method to obtain the soft deleted data
+                ->withTrashed()
+                ->get()
+            ]
+        );
     }
 
     /**
@@ -20,54 +32,47 @@ class MyJobController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', Job::class);
         return view('my_job.create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(JobRequest $request)
     {
-        //validating the form data
-        $validatedData = $request->validate([
-            'title'=> 'required|string|max:255',
-            'location'=> 'required|string|max:255',
-            'salary'=> 'required|numeric|min:5000',
-            'description'=> 'required|string',
-            'experience'=> 'required|in:' . implode(',',Job::$experience),
-            'category'=> 'required|in:' . implode(',',Job::$category),
-        ]);
+        $this->authorize('create', Job::class);
+        auth()->user()->employer->jobs()->create($request->validated());
+        return redirect()->route('my-jobs.index')
+        ->with('success','Job was created successfully.');
     }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit(Job $myJob)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        $this->authorize('update', $myJob);
+        return view('my_job.edit', [ 'job' => $myJob ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(JobRequest $request, Job $myJob)
     {
-        //
+        $this->authorize('update', $myJob);
+        $myJob->update($request->validated());
+
+        return redirect()->route('my-jobs.index')
+        ->with('success','Job updated successfully');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Job $myJob)
     {
         //
+        $myJob->delete();
+
+        return redirect()->route('my-jobs.index')
+        ->with('success','Job deleted.');
     }
 }
